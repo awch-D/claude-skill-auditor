@@ -2,7 +2,7 @@
 
 import re
 from pathlib import Path
-from typing import Dict, Any, Tuple
+from typing import Any
 
 import yaml
 
@@ -11,6 +11,7 @@ from .skill import Skill, SkillMetadata, SkillSource
 
 class SkillParseError(Exception):
     """Skill 解析错误"""
+
     pass
 
 
@@ -18,10 +19,7 @@ class SkillParser:
     """Skill 文件解析器"""
 
     # YAML frontmatter 正则模式
-    FRONTMATTER_PATTERN = re.compile(
-        r"^---\s*\n(.*?)\n---\s*\n?",
-        re.DOTALL
-    )
+    FRONTMATTER_PATTERN = re.compile(r"^---\s*\n(.*?)\n---\s*\n?", re.DOTALL)
 
     def parse_file(self, file_path: Path) -> Skill:
         """解析本地 Skill 文件"""
@@ -62,7 +60,7 @@ class SkillParser:
             raw_content=raw_content,
         )
 
-    def _parse_frontmatter(self, content: str) -> Tuple[Dict[str, Any], str]:
+    def _parse_frontmatter(self, content: str) -> tuple[dict[str, Any], str]:
         """解析 YAML frontmatter 和 Markdown body"""
         # 检查是否以 --- 开头
         if not content.strip().startswith("---"):
@@ -86,7 +84,7 @@ class SkillParser:
 
                 if end_idx:
                     frontmatter_lines = lines[1:end_idx]
-                    body_lines = lines[end_idx + 1:]
+                    body_lines = lines[end_idx + 1 :]
 
                     frontmatter_str = "\n".join(frontmatter_lines)
                     body = "\n".join(body_lines)
@@ -94,7 +92,7 @@ class SkillParser:
                     try:
                         frontmatter_dict = yaml.safe_load(frontmatter_str) or {}
                     except yaml.YAMLError as e:
-                        raise SkillParseError(f"YAML 解析错误: {e}")
+                        raise SkillParseError(f"YAML 解析错误: {e}") from e
 
                     return frontmatter_dict, body.strip()
 
@@ -103,12 +101,12 @@ class SkillParser:
 
         # 正常解析
         frontmatter_str = match.group(1)
-        body = content[match.end():].strip()
+        body = content[match.end() :].strip()
 
         try:
             frontmatter_dict = yaml.safe_load(frontmatter_str) or {}
         except yaml.YAMLError as e:
-            raise SkillParseError(f"YAML 解析错误: {e}")
+            raise SkillParseError(f"YAML 解析错误: {e}") from e
 
         return frontmatter_dict, body
 

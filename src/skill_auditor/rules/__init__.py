@@ -1,6 +1,6 @@
 """Rules module"""
 
-from .engine import RuleEngine, Rule, register_condition
+from .engine import Rule, RuleEngine, register_condition
 
 __all__ = [
     "RuleEngine",

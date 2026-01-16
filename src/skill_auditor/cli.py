@@ -1,29 +1,28 @@
 """CLI command interface"""
 
-import sys
 import os
+import sys
 from pathlib import Path
-from typing import Optional, List, Tuple
+from typing import Optional
 
 # Fix Windows Unicode encoding issues
 if sys.platform == "win32":
     # Set UTF-8 mode for Windows
-    if hasattr(sys.stdout, 'reconfigure'):
-        sys.stdout.reconfigure(encoding='utf-8', errors='replace')
-    if hasattr(sys.stderr, 'reconfigure'):
-        sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    if hasattr(sys.stderr, "reconfigure"):
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
     # Enable UTF-8 mode via environment
-    os.environ.setdefault('PYTHONIOENCODING', 'utf-8')
+    os.environ.setdefault("PYTHONIOENCODING", "utf-8")
 
 import click
 from rich.console import Console
 from rich.table import Table
-from rich.panel import Panel
 
-from .core.parser import SkillParser, SkillParseError
 from .core.audit_context import AuditResult, Severity
-from .rules.engine import RuleEngine
+from .core.parser import SkillParseError, SkillParser
 from .reporters import get_reporter
+from .rules.engine import RuleEngine
 
 # Configure Rich console with safe output for all platforms
 console = Console(force_terminal=False, soft_wrap=True)
@@ -57,12 +56,16 @@ def get_claude_skill_paths() -> dict:
     if sys.platform == "win32":
         # Windows paths
         paths["personal"] = home / ".claude" / "skills"
-        paths["desktop_config"] = Path(os.environ.get("APPDATA", "")) / "Claude" / "claude_desktop_config.json"
+        paths["desktop_config"] = (
+            Path(os.environ.get("APPDATA", "")) / "Claude" / "claude_desktop_config.json"
+        )
         paths["desktop_logs"] = Path(os.environ.get("APPDATA", "")) / "Claude" / "logs"
     elif sys.platform == "darwin":
         # macOS paths
         paths["personal"] = home / ".claude" / "skills"
-        paths["desktop_config"] = home / "Library" / "Application Support" / "Claude" / "claude_desktop_config.json"
+        paths["desktop_config"] = (
+            home / "Library" / "Application Support" / "Claude" / "claude_desktop_config.json"
+        )
         paths["desktop_logs"] = home / "Library" / "Logs" / "Claude"
     else:
         # Linux paths (similar to macOS for CLI)
@@ -76,7 +79,7 @@ def get_claude_skill_paths() -> dict:
     return paths
 
 
-def find_skill_files(directory: Path, recursive: bool = True) -> List[Path]:
+def find_skill_files(directory: Path, recursive: bool = True) -> list[Path]:
     """查找目录中的有效 Skill 文件
 
     Args:
@@ -107,7 +110,7 @@ def find_skill_files(directory: Path, recursive: bool = True) -> List[Path]:
     return skill_files
 
 
-def discover_all_skills() -> List[Tuple[str, Path, List[Path]]]:
+def discover_all_skills() -> list[tuple[str, Path, list[Path]]]:
     """发现所有已安装的 Claude Skills
 
     Returns:
@@ -161,22 +164,25 @@ def cli(ctx: click.Context, verbose: bool) -> None:
 @click.argument("skill_path", type=click.Path(exists=True))
 @click.option("--output", "-o", type=click.Path(), help="Output file path")
 @click.option(
-    "--format", "-f", "output_format",
+    "--format",
+    "-f",
+    "output_format",
     type=click.Choice(["json", "markdown", "sarif"]),
     default="markdown",
-    help="Output format (default: markdown)"
+    help="Output format (default: markdown)",
 )
 @click.option(
-    "--severity", "-s",
+    "--severity",
+    "-s",
     type=click.Choice(["critical", "high", "medium", "low", "info"]),
     default="low",
-    help="Minimum severity to report (default: low)"
+    help="Minimum severity to report (default: low)",
 )
 @click.option(
     "--fail-on",
     type=click.Choice(["critical", "high", "medium", "none"]),
     default="high",
-    help="Fail threshold for exit code (default: high)"
+    help="Fail threshold for exit code (default: high)",
 )
 @click.option("--rules-dir", type=click.Path(exists=True), help="Custom rules directory")
 @click.pass_context
@@ -236,10 +242,7 @@ def audit(
     # 过滤严重级别
     severity_order = ["critical", "high", "medium", "low", "info"]
     min_idx = severity_order.index(severity)
-    filtered_findings = [
-        f for f in findings
-        if severity_order.index(f.severity.value) <= min_idx
-    ]
+    filtered_findings = [f for f in findings if severity_order.index(f.severity.value) <= min_idx]
 
     # 创建审计结果
     result = AuditResult(skill=skill, findings=filtered_findings)
@@ -261,13 +264,10 @@ def audit(
     if fail_on != "none":
         fail_idx = severity_order.index(fail_on)
         should_fail = any(
-            severity_order.index(f.severity.value) <= fail_idx
-            for f in filtered_findings
+            severity_order.index(f.severity.value) <= fail_idx for f in filtered_findings
         )
         if should_fail:
-            console.print(
-                f"\n[red]✗[/red] 发现 {fail_on.upper()} 或更高级别的风险，审查未通过"
-            )
+            console.print(f"\n[red]✗[/red] 发现 {fail_on.upper()} 或更高级别的风险，审查未通过")
             sys.exit(1)
 
     console.print("\n[green]✓[/green] 审查完成")
@@ -275,16 +275,32 @@ def audit(
 
 @cli.command()
 @click.argument("directory", type=click.Path(exists=True), required=False)
-@click.option("--recursive", "-r", is_flag=True, default=True, help="Recursive scan (default: True)")
+@click.option(
+    "--recursive", "-r", is_flag=True, default=True, help="Recursive scan (default: True)"
+)
 @click.option("--output", "-o", type=click.Path(), help="Output directory")
 @click.option(
-    "--format", "-f", "output_format",
+    "--format",
+    "-f",
+    "output_format",
     type=click.Choice(["json", "markdown", "sarif"]),
     default="json",
-    help="Output format (default: json)"
+    help="Output format (default: json)",
 )
-@click.option("--global", "-g", "scan_global", is_flag=True, help="Scan personal global skills (~/.claude/skills/)")
-@click.option("--project", "-p", "scan_project", is_flag=True, help="Scan project local skills (./.claude/skills/)")
+@click.option(
+    "--global",
+    "-g",
+    "scan_global",
+    is_flag=True,
+    help="Scan personal global skills (~/.claude/skills/)",
+)
+@click.option(
+    "--project",
+    "-p",
+    "scan_project",
+    is_flag=True,
+    help="Scan project local skills (./.claude/skills/)",
+)
 @click.pass_context
 def scan(
     ctx: click.Context,
@@ -310,7 +326,7 @@ def scan(
         skill-auditor scan ./skills/ -r -o ./reports/
         skill-auditor scan --global --project
     """
-    verbose = ctx.obj.get("verbose", False)
+    _ = ctx.obj.get("verbose", False)  # Reserved for future verbose output
     paths = get_claude_skill_paths()
 
     # Determine directories to scan
@@ -323,13 +339,17 @@ def scan(
         if paths["personal"] and paths["personal"].exists():
             directories_to_scan.append(("Personal (Global)", paths["personal"]))
         else:
-            console.print(f"[yellow]Personal skills directory not found: {paths['personal']}[/yellow]")
+            console.print(
+                f"[yellow]Personal skills directory not found: {paths['personal']}[/yellow]"
+            )
 
     if scan_project:
         if paths["project"] and paths["project"].exists():
             directories_to_scan.append(("Project (Local)", paths["project"]))
         else:
-            console.print(f"[yellow]Project skills directory not found: {paths['project']}[/yellow]")
+            console.print(
+                f"[yellow]Project skills directory not found: {paths['project']}[/yellow]"
+            )
 
     # If no directory specified and no flags, show help
     if not directories_to_scan:
@@ -356,7 +376,7 @@ def scan(
         skill_files = find_skill_files(dir_path, recursive=recursive)
 
         if not skill_files:
-            console.print(f"[yellow]  No valid Skill files found[/yellow]")
+            console.print("[yellow]  No valid Skill files found[/yellow]")
             continue
 
         console.print(f"[blue]  Found {len(skill_files)} Skill files[/blue]")
@@ -367,7 +387,11 @@ def scan(
             output_dir.mkdir(parents=True, exist_ok=True)
 
         for skill_file in skill_files:
-            rel_path = skill_file.relative_to(dir_path) if skill_file.is_relative_to(dir_path) else skill_file.name
+            rel_path = (
+                skill_file.relative_to(dir_path)
+                if skill_file.is_relative_to(dir_path)
+                else skill_file.name
+            )
             console.print(f"[dim]  Scanning: {rel_path}[/dim]")
 
             try:
@@ -375,22 +399,28 @@ def scan(
                 findings = engine.analyze(skill)
                 result = AuditResult(skill=skill, findings=findings)
 
-                all_results.append({
-                    "location": location_name,
-                    "file": str(skill_file),
-                    "relative_path": str(rel_path),
-                    "name": skill.metadata.name,
-                    "risk_score": result.risk_score,
-                    "total_findings": result.total_findings,
-                    "critical": result.findings_by_severity[Severity.CRITICAL],
-                    "high": result.findings_by_severity[Severity.HIGH],
-                })
+                all_results.append(
+                    {
+                        "location": location_name,
+                        "file": str(skill_file),
+                        "relative_path": str(rel_path),
+                        "name": skill.metadata.name,
+                        "risk_score": result.risk_score,
+                        "total_findings": result.total_findings,
+                        "critical": result.findings_by_severity[Severity.CRITICAL],
+                        "high": result.findings_by_severity[Severity.HIGH],
+                    }
+                )
 
                 # Save individual report
                 if output:
                     reporter = get_reporter(output_format)
                     report = reporter.generate(result)
-                    ext = "json" if output_format == "json" else "md" if output_format == "markdown" else "sarif"
+                    ext = (
+                        "json"
+                        if output_format == "json"
+                        else "md" if output_format == "markdown" else "sarif"
+                    )
                     report_file = output_dir / f"{skill_file.stem}.{ext}"
                     report_file.write_text(report, encoding="utf-8")
 
@@ -443,10 +473,12 @@ whitelist:
 @cli.command("scan-all")
 @click.option("--output", "-o", type=click.Path(), help="Output directory for reports")
 @click.option(
-    "--format", "-f", "output_format",
+    "--format",
+    "-f",
+    "output_format",
     type=click.Choice(["json", "markdown", "sarif"]),
     default="json",
-    help="Output format (default: json)"
+    help="Output format (default: json)",
 )
 @click.pass_context
 def scan_all(ctx: click.Context, output: Optional[str], output_format: str) -> None:
@@ -461,7 +493,7 @@ def scan_all(ctx: click.Context, output: Optional[str], output_format: str) -> N
         skill-auditor scan-all
         skill-auditor scan-all -o ./reports/
     """
-    verbose = ctx.obj.get("verbose", False)
+    _ = ctx.obj.get("verbose", False)  # Reserved for future verbose output
 
     console.print("[bold]Discovering Claude Skills...[/bold]\n")
 
@@ -493,7 +525,11 @@ def scan_all(ctx: click.Context, output: Optional[str], output_format: str) -> N
             output_dir.mkdir(parents=True, exist_ok=True)
 
         for skill_file in skill_files:
-            rel_path = skill_file.relative_to(base_path) if skill_file.is_relative_to(base_path) else skill_file.name
+            rel_path = (
+                skill_file.relative_to(base_path)
+                if skill_file.is_relative_to(base_path)
+                else skill_file.name
+            )
             console.print(f"[dim]  Scanning: {rel_path}[/dim]")
 
             try:
@@ -501,22 +537,28 @@ def scan_all(ctx: click.Context, output: Optional[str], output_format: str) -> N
                 findings = engine.analyze(skill)
                 result = AuditResult(skill=skill, findings=findings)
 
-                all_results.append({
-                    "location": location_name,
-                    "file": str(skill_file),
-                    "relative_path": str(rel_path),
-                    "name": skill.metadata.name,
-                    "risk_score": result.risk_score,
-                    "total_findings": result.total_findings,
-                    "critical": result.findings_by_severity[Severity.CRITICAL],
-                    "high": result.findings_by_severity[Severity.HIGH],
-                })
+                all_results.append(
+                    {
+                        "location": location_name,
+                        "file": str(skill_file),
+                        "relative_path": str(rel_path),
+                        "name": skill.metadata.name,
+                        "risk_score": result.risk_score,
+                        "total_findings": result.total_findings,
+                        "critical": result.findings_by_severity[Severity.CRITICAL],
+                        "high": result.findings_by_severity[Severity.HIGH],
+                    }
+                )
 
                 # Save individual report
                 if output:
                     reporter = get_reporter(output_format)
                     report = reporter.generate(result)
-                    ext = "json" if output_format == "json" else "md" if output_format == "markdown" else "sarif"
+                    ext = (
+                        "json"
+                        if output_format == "json"
+                        else "md" if output_format == "markdown" else "sarif"
+                    )
                     report_file = output_dir / f"{skill_file.stem}.{ext}"
                     report_file.write_text(report, encoding="utf-8")
 
@@ -565,11 +607,17 @@ def paths() -> None:
     # Desktop config
     console.print("\n[bold]Claude Desktop:[/bold]")
     desktop_config = paths["desktop_config"]
-    exists_mark = "[green]OK[/green]" if desktop_config and desktop_config.exists() else "[dim]not found[/dim]"
+    exists_mark = (
+        "[green]OK[/green]"
+        if desktop_config and desktop_config.exists()
+        else "[dim]not found[/dim]"
+    )
     console.print(f"  Config: {desktop_config} {exists_mark}")
 
     desktop_logs = paths["desktop_logs"]
-    exists_mark = "[green]OK[/green]" if desktop_logs and desktop_logs.exists() else "[dim]not found[/dim]"
+    exists_mark = (
+        "[green]OK[/green]" if desktop_logs and desktop_logs.exists() else "[dim]not found[/dim]"
+    )
     console.print(f"  Logs:   {desktop_logs} {exists_mark}")
 
     # Quick tips
@@ -585,7 +633,9 @@ def _print_summary(result: AuditResult, verbose: bool = False) -> None:
     console.print("=" * 50)
 
     # Risk score
-    risk_color = "red" if result.risk_score >= 70 else "yellow" if result.risk_score >= 30 else "green"
+    risk_color = (
+        "red" if result.risk_score >= 70 else "yellow" if result.risk_score >= 30 else "green"
+    )
     console.print(f"Risk Score: [{risk_color}]{result.risk_score}/100[/{risk_color}]")
     console.print(f"Total Findings: {result.total_findings}")
 
@@ -620,7 +670,9 @@ def _print_scan_summary(results: list) -> None:
     table.add_column("HIGH", justify="center", style="orange1")
 
     for r in sorted(results, key=lambda x: x["risk_score"], reverse=True):
-        risk_style = "red" if r["risk_score"] >= 70 else "yellow" if r["risk_score"] >= 30 else "green"
+        risk_style = (
+            "red" if r["risk_score"] >= 70 else "yellow" if r["risk_score"] >= 30 else "green"
+        )
         location = r.get("location", "")[:12]  # Truncate location name
         table.add_row(
             location,

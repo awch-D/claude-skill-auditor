@@ -1,13 +1,14 @@
 """Skill data models"""
 
+import hashlib
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List, Optional
-import hashlib
+from typing import Any, Optional
 
 
 class SkillSource(Enum):
     """Skill 来源类型"""
+
     LOCAL_FILE = "local_file"
     GITHUB_URL = "github_url"
     REGISTRY = "registry"
@@ -16,13 +17,14 @@ class SkillSource(Enum):
 @dataclass
 class SkillMetadata:
     """Skill YAML frontmatter 元数据"""
+
     name: str
     description: str
-    allowed_tools: Optional[List[str]] = None
-    raw_frontmatter: Dict[str, Any] = field(default_factory=dict)
+    allowed_tools: Optional[list[str]] = None
+    raw_frontmatter: dict[str, Any] = field(default_factory=dict)
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "SkillMetadata":
+    def from_dict(cls, data: dict[str, Any]) -> "SkillMetadata":
         """从字典创建 SkillMetadata"""
         allowed_tools = None
 
@@ -46,6 +48,7 @@ class SkillMetadata:
 @dataclass
 class Skill:
     """Skill 完整数据模型"""
+
     source: SkillSource
     source_path: str  # 文件路径或 URL
     metadata: SkillMetadata
@@ -74,7 +77,7 @@ class Skill:
         return -1
 
     @property
-    def tools_list(self) -> List[str]:
+    def tools_list(self) -> list[str]:
         """返回工具列表（空列表表示无限制）"""
         return self.metadata.allowed_tools or []
 

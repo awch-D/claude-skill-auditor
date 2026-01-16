@@ -1,11 +1,9 @@
 """Report generators"""
 
-from abc import ABC, abstractmethod
 import json
-from datetime import datetime
-from typing import Dict, Any
+from abc import ABC, abstractmethod
 
-from ..core.audit_context import AuditResult, Severity, RiskCategory
+from ..core.audit_context import AuditResult, Severity
 
 
 class BaseReporter(ABC):
@@ -75,7 +73,9 @@ class MarkdownReporter(BaseReporter):
         lines.append("## 风险评估")
         lines.append("")
 
-        risk_indicator = "🔴" if result.risk_score >= 70 else "🟡" if result.risk_score >= 30 else "🟢"
+        risk_indicator = (
+            "🔴" if result.risk_score >= 70 else "🟡" if result.risk_score >= 30 else "🟢"
+        )
         lines.append(f"- **风险评分**: {result.risk_score}/100 {risk_indicator}")
 
         if result.has_critical:
@@ -104,11 +104,16 @@ class MarkdownReporter(BaseReporter):
             lines.append("")
 
             # 按严重级别排序
-            sorted_findings = sorted(result.findings, key=lambda f: list(Severity).index(f.severity))
+            sorted_findings = sorted(
+                result.findings, key=lambda f: list(Severity).index(f.severity)
+            )
 
             for finding in sorted_findings:
                 icon = self.SEVERITY_ICONS[finding.severity]
-                lines.append(f"### {icon} {finding.severity.value.upper()}: {finding.rule_id or finding.id} - {finding.title}")
+                lines.append(
+                    f"### {icon} {finding.severity.value.upper()}: "
+                    f"{finding.rule_id or finding.id} - {finding.title}"
+                )
                 lines.append("")
                 lines.append(f"**类别**: {finding.category.value.replace('_', ' ').title()}")
                 if finding.is_ai_generated:
@@ -186,19 +191,19 @@ class SARIFReporter(BaseReporter):
             rule_id = finding.rule_id or finding.id
             if rule_id not in rule_ids_seen:
                 rule_ids_seen.add(rule_id)
-                rules.append({
-                    "id": rule_id,
-                    "name": finding.title.replace(" ", ""),
-                    "shortDescription": {"text": finding.title},
-                    "fullDescription": {"text": finding.description},
-                    "defaultConfiguration": {
-                        "level": severity_map[finding.severity]
-                    },
-                    "properties": {
-                        "tags": ["security", finding.category.value],
-                        "precision": "high" if finding.confidence >= 0.8 else "medium",
-                    },
-                })
+                rules.append(
+                    {
+                        "id": rule_id,
+                        "name": finding.title.replace(" ", ""),
+                        "shortDescription": {"text": finding.title},
+                        "fullDescription": {"text": finding.description},
+                        "defaultConfiguration": {"level": severity_map[finding.severity]},
+                        "properties": {
+                            "tags": ["security", finding.category.value],
+                            "precision": "high" if finding.confidence >= 0.8 else "medium",
+                        },
+                    }
+                )
 
         # 构建结果列表
         results = []
@@ -223,9 +228,7 @@ class SARIFReporter(BaseReporter):
                 ],
             }
             if finding.recommendation:
-                result_item["fixes"] = [
-                    {"description": {"text": finding.recommendation}}
-                ]
+                result_item["fixes"] = [{"description": {"text": finding.recommendation}}]
             results.append(result_item)
 
         sarif = {

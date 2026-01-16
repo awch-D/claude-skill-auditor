@@ -1,9 +1,10 @@
 """Tests for Skill parser"""
 
-import pytest
 from pathlib import Path
 
-from skill_auditor.core.parser import SkillParser, SkillParseError
+import pytest
+
+from skill_auditor.core.parser import SkillParser
 from skill_auditor.core.skill import SkillSource
 
 
@@ -133,9 +134,7 @@ Body.
         assert any("name" in w.lower() for w in warnings)
         assert any("description" in w.lower() for w in warnings)
 
-    def test_parse_skill_file(
-        self, parser: SkillParser, safe_skills_dir: Path
-    ) -> None:
+    def test_parse_skill_file(self, parser: SkillParser, safe_skills_dir: Path) -> None:
         """测试从文件解析 Skill"""
         skill_file = safe_skills_dir / "basic_skill.md"
 

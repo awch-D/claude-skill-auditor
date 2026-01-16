@@ -1,19 +1,20 @@
 """Audit context and result models"""
 
+import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Dict, List, Optional
-import uuid
+from typing import Optional
 
 
 class Severity(Enum):
     """风险严重等级"""
+
     CRITICAL = "critical"  # 必须阻断
-    HIGH = "high"          # 强烈建议阻断
-    MEDIUM = "medium"      # 需要人工审核
-    LOW = "low"            # 信息提示
-    INFO = "info"          # 纯信息
+    HIGH = "high"  # 强烈建议阻断
+    MEDIUM = "medium"  # 需要人工审核
+    LOW = "low"  # 信息提示
+    INFO = "info"  # 纯信息
 
     @classmethod
     def from_string(cls, value: str) -> "Severity":
@@ -27,6 +28,7 @@ class Severity(Enum):
 
 class RiskCategory(Enum):
     """风险类别"""
+
     PROMPT_INJECTION = "prompt_injection"
     PERMISSION_ABUSE = "permission_abuse"
     DATA_EXFILTRATION = "data_exfiltration"
@@ -48,6 +50,7 @@ class RiskCategory(Enum):
 @dataclass
 class Finding:
     """单个发现项"""
+
     id: str  # 唯一标识符 e.g., "PI-001"
     category: RiskCategory
     severity: Severity
@@ -63,7 +66,7 @@ class Finding:
     analyzer: str = "unknown"  # 产生该发现的分析器名称
     is_ai_generated: bool = False  # 是否由 AI 语义分析产生
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         """转换为字典"""
         return {
             "id": self.id,
@@ -84,8 +87,9 @@ class Finding:
 @dataclass
 class AuditResult:
     """完整审计结果"""
+
     skill: "Skill"  # Forward reference
-    findings: List[Finding] = field(default_factory=list)
+    findings: list[Finding] = field(default_factory=list)
 
     # 审计元信息
     audit_id: str = field(default_factory=lambda: str(uuid.uuid4())[:8])
@@ -99,17 +103,17 @@ class AuditResult:
         return len(self.findings)
 
     @property
-    def findings_by_severity(self) -> Dict[Severity, int]:
+    def findings_by_severity(self) -> dict[Severity, int]:
         """按严重级别统计"""
-        result = {s: 0 for s in Severity}
+        result = dict.fromkeys(Severity, 0)
         for f in self.findings:
             result[f.severity] += 1
         return result
 
     @property
-    def findings_by_category(self) -> Dict[RiskCategory, int]:
+    def findings_by_category(self) -> dict[RiskCategory, int]:
         """按类别统计"""
-        result = {c: 0 for c in RiskCategory}
+        result = dict.fromkeys(RiskCategory, 0)
         for f in self.findings:
             result[f.category] += 1
         return result
@@ -117,10 +121,7 @@ class AuditResult:
     @property
     def is_blocked(self) -> bool:
         """是否应该阻断（存在 CRITICAL 或 HIGH）"""
-        return any(
-            f.severity in [Severity.CRITICAL, Severity.HIGH]
-            for f in self.findings
-        )
+        return any(f.severity in [Severity.CRITICAL, Severity.HIGH] for f in self.findings)
 
     @property
     def has_critical(self) -> bool:
@@ -140,15 +141,15 @@ class AuditResult:
         score = sum(weights[f.severity] for f in self.findings)
         return min(100, score)
 
-    def get_findings_by_severity(self, severity: Severity) -> List[Finding]:
+    def get_findings_by_severity(self, severity: Severity) -> list[Finding]:
         """获取指定严重级别的发现"""
         return [f for f in self.findings if f.severity == severity]
 
-    def get_findings_by_category(self, category: RiskCategory) -> List[Finding]:
+    def get_findings_by_category(self, category: RiskCategory) -> list[Finding]:
         """获取指定类别的发现"""
         return [f for f in self.findings if f.category == category]
 
-    def filter_by_min_severity(self, min_severity: Severity) -> List[Finding]:
+    def filter_by_min_severity(self, min_severity: Severity) -> list[Finding]:
         """过滤出严重级别 >= min_severity 的发现"""
         severity_order = [
             Severity.CRITICAL,
@@ -158,12 +159,9 @@ class AuditResult:
             Severity.INFO,
         ]
         min_idx = severity_order.index(min_severity)
-        return [
-            f for f in self.findings
-            if severity_order.index(f.severity) <= min_idx
-        ]
+        return [f for f in self.findings if severity_order.index(f.severity) <= min_idx]
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         """转换为字典"""
         return {
             "audit_id": self.audit_id,

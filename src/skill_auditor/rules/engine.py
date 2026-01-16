@@ -3,30 +3,31 @@
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, Optional
 
 import yaml
 
+from ..core.audit_context import Finding, RiskCategory, Severity
 from ..core.skill import Skill
-from ..core.audit_context import Finding, Severity, RiskCategory
 
 
 @dataclass
 class Rule:
     """单条规则"""
+
     id: str
     name: str
     severity: Severity
     category: RiskCategory
     description: str
-    patterns: Optional[List[str]] = None  # 正则模式
-    condition: Optional[str] = None       # 条件表达式
+    patterns: Optional[list[str]] = None  # 正则模式
+    condition: Optional[str] = None  # 条件表达式
     recommendation: str = ""
     enabled: bool = True
-    examples: List[str] = field(default_factory=list)
+    examples: list[str] = field(default_factory=list)
 
     # 编译后的正则模式
-    _compiled_patterns: List[re.Pattern] = field(default_factory=list, repr=False)
+    _compiled_patterns: list[re.Pattern] = field(default_factory=list, repr=False)
 
     def compile_patterns(self) -> None:
         """编译正则模式"""
@@ -39,32 +40,36 @@ class Rule:
                 except re.error as e:
                     print(f"警告: 规则 {self.id} 的正则模式编译失败: {p} - {e}")
 
-    def match(self, text: str) -> List[Dict[str, Any]]:
+    def match(self, text: str) -> list[dict[str, Any]]:
         """返回所有匹配项及其位置"""
         matches = []
         if self._compiled_patterns:
             for pattern in self._compiled_patterns:
                 for m in pattern.finditer(text):
                     # 计算行号
-                    line_number = text[:m.start()].count("\n") + 1
-                    matches.append({
-                        "match": m.group(),
-                        "start": m.start(),
-                        "end": m.end(),
-                        "line": line_number,
-                    })
+                    line_number = text[: m.start()].count("\n") + 1
+                    matches.append(
+                        {
+                            "match": m.group(),
+                            "start": m.start(),
+                            "end": m.end(),
+                            "line": line_number,
+                        }
+                    )
         return matches
 
 
 # 条件函数注册表
-CONDITION_REGISTRY: Dict[str, Callable[[Skill, Any], bool]] = {}
+CONDITION_REGISTRY: dict[str, Callable[[Skill, Any], bool]] = {}
 
 
 def register_condition(name: str):
     """条件装饰器"""
+
     def decorator(func: Callable[[Skill, Any], bool]):
         CONDITION_REGISTRY[name] = func
         return func
+
     return decorator
 
 
@@ -80,10 +85,7 @@ def check_has_critical_tools(skill: Skill, params: Any) -> bool:
     """检查是否包含高危工具"""
     critical_tools = ["bash", "shell", "terminal", "execute", "cmd"]
     if skill.metadata.allowed_tools:
-        return any(
-            t.lower() in critical_tools
-            for t in skill.metadata.allowed_tools
-        )
+        return any(t.lower() in critical_tools for t in skill.metadata.allowed_tools)
     return False
 
 
@@ -91,6 +93,7 @@ def check_has_critical_tools(skill: Skill, params: Any) -> bool:
 def check_tool_count(skill: Skill, params: str) -> bool:
     """检查工具数量条件，params: "> 10", "< 5" 等"""
     import operator
+
     ops = {
         ">": operator.gt,
         "<": operator.lt,
@@ -132,6 +135,7 @@ def check_description_angle_brackets(skill: Skill, params: Any) -> bool:
 def check_name_invalid_format(skill: Skill, params: Any) -> bool:
     """检查 name 是否符合官方规范（小写字母、数字、连字符）"""
     import re
+
     name = skill.metadata.name
     if not name:
         return True
@@ -152,9 +156,9 @@ class RuleEngine:
     """规则引擎"""
 
     def __init__(self) -> None:
-        self.rules: Dict[str, Rule] = {}
-        self.rule_sets: Dict[str, Dict] = {}
-        self._dangerous_tools: Dict[str, List[str]] = {
+        self.rules: dict[str, Rule] = {}
+        self.rule_sets: dict[str, dict] = {}
+        self._dangerous_tools: dict[str, list[str]] = {
             "critical": ["bash", "shell", "terminal", "execute", "cmd"],
             "high": ["write", "edit", "delete", "filewrite"],
             "medium": ["webfetch", "websearch"],
@@ -170,7 +174,7 @@ class RuleEngine:
 
     def load_rules_from_file(self, file_path: Path) -> None:
         """加载单个规则文件"""
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             data = yaml.safe_load(f)
 
         if not data:
@@ -205,11 +209,11 @@ class RuleEngine:
             rule.compile_patterns()
             self.rules[rule.id] = rule
 
-    def analyze(self, skill: Skill) -> List[Finding]:
+    def analyze(self, skill: Skill) -> list[Finding]:
         """对 Skill 执行所有规则分析"""
         findings = []
 
-        for rule_id, rule in self.rules.items():
+        for _rule_id, rule in self.rules.items():
             if not rule.enabled:
                 continue
 
@@ -239,7 +243,7 @@ class RuleEngine:
 
         return findings
 
-    def _create_finding(self, rule: Rule, match: Dict, location: str) -> Finding:
+    def _create_finding(self, rule: Rule, match: dict, location: str) -> Finding:
         """从规则匹配创建 Finding"""
         return Finding(
             id=f"{rule.id}-{match.get('line', 0)}",
@@ -305,7 +309,8 @@ class RuleEngine:
 
         if "has_critical_tools" in condition:
             critical = [
-                t for t in skill.tools_list
+                t
+                for t in skill.tools_list
                 if t.lower() in self._dangerous_tools.get("critical", [])
             ]
             return f"Skill 请求访问高危工具: {', '.join(critical)}"

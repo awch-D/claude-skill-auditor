@@ -1,8 +1,8 @@
 """Core module"""
 
+from .audit_context import AuditResult, Finding, RiskCategory, Severity
+from .parser import SkillParseError, SkillParser
 from .skill import Skill, SkillMetadata, SkillSource
-from .audit_context import Finding, AuditResult, Severity, RiskCategory
-from .parser import SkillParser, SkillParseError
 
 __all__ = [
     "Skill",
