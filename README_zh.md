@@ -23,8 +23,30 @@
   <a href="#功能特性">功能特性</a> •
   <a href="#ci-集成">CI 集成</a> •
   <a href="#自定义规则">自定义规则</a> •
-  <a href="docs/ARCHITECTURE.md">架构文档</a>
+  <a href="docs/ARCHITECTURE_zh.md">架构文档</a>
 </p>
+
+---
+
+## 系统架构
+
+> 📐 **[查看完整架构文档 →](docs/ARCHITECTURE_zh.md)**
+
+```mermaid
+%%{init: {'theme': 'dark', 'themeVariables': { 'primaryColor': '#000000', 'primaryTextColor': '#ffffff', 'primaryBorderColor': '#ffffff', 'lineColor': '#ffffff', 'secondaryColor': '#1a1a1a', 'background': '#000000', 'nodeBorder': '#ffffff', 'clusterBkg': '#1a1a1a', 'clusterBorder': '#ffffff'}}}%%
+flowchart LR
+    subgraph INPUT["📥 输入"]
+        A["Skill 文件"]
+    end
+    subgraph PROCESS["⚙️ 处理"]
+        B["解析器"] --> C["规则引擎"] --> D["分析器"]
+    end
+    subgraph OUTPUT["📤 输出"]
+        E["报告"]
+    end
+    A --> B
+    D --> E
+```
 
 ---
 

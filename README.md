@@ -28,6 +28,28 @@
 
 ---
 
+## System Architecture
+
+> 📐 **[View Full Architecture Documentation →](docs/ARCHITECTURE.md)**
+
+```mermaid
+%%{init: {'theme': 'dark', 'themeVariables': { 'primaryColor': '#000000', 'primaryTextColor': '#ffffff', 'primaryBorderColor': '#ffffff', 'lineColor': '#ffffff', 'secondaryColor': '#1a1a1a', 'background': '#000000', 'nodeBorder': '#ffffff', 'clusterBkg': '#1a1a1a', 'clusterBorder': '#ffffff'}}}%%
+flowchart LR
+    subgraph INPUT["📥 Input"]
+        A["Skill File"]
+    end
+    subgraph PROCESS["⚙️ Process"]
+        B["Parser"] --> C["Rule Engine"] --> D["Analyzer"]
+    end
+    subgraph OUTPUT["📤 Output"]
+        E["Report"]
+    end
+    A --> B
+    D --> E
+```
+
+---
+
 ## Why Use This?
 
 Third-party Claude Skills can contain **hidden malicious instructions** that:
