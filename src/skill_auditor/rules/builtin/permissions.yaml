@@ -1,0 +1,89 @@
+# Permission Abuse Detection Rules
+rule_set:
+  id: "permission-abuse"
+  name: "Permission Abuse Detection"
+  version: "1.0.0"
+  description: "检测 Skill 中的权限滥用模式"
+
+# 高风险工具列表
+dangerous_tools:
+  critical:
+    - "Bash"
+    - "bash"
+    - "shell"
+    - "terminal"
+    - "execute"
+    - "cmd"
+    - "powershell"
+  high:
+    - "Write"
+    - "Edit"
+    - "Delete"
+    - "FileWrite"
+    - "Remove"
+  medium:
+    - "WebFetch"
+    - "WebSearch"
+
+rules:
+  - id: "PA-001"
+    name: "Unrestricted Tool Access"
+    severity: info
+    category: permission_abuse
+    description: "Skill 未限制 allowed-tools（注意：官方 Skill 通常不设置此字段，这仅作为信息提示）"
+    condition: "no_allowed_tools"
+    recommendation: "考虑添加 allowed-tools 以限制工具访问范围（可选）"
+
+  - id: "PA-002"
+    name: "Excessive Tool Permissions"
+    severity: medium
+    category: permission_abuse
+    description: "请求的工具权限超过 10 个"
+    condition: "tool_count:> 10"
+    recommendation: "减少不必要的工具权限，遵循最小权限原则"
+
+  - id: "PA-003"
+    name: "Critical Tool Access - Bash"
+    severity: critical
+    category: permission_abuse
+    description: "请求访问 Bash/Shell 等高危工具"
+    condition: "has_critical_tools"
+    recommendation: "移除对 Bash/Shell 的访问权限，使用更安全的替代方案"
+
+  - id: "PA-004"
+    name: "Dangerous Tool Combination"
+    severity: critical
+    category: permission_abuse
+    description: "同时请求 Bash 和网络访问工具（可能用于数据外泄）"
+    condition: "has_tool_combination:Bash,WebFetch"
+    recommendation: "拆分为独立 Skill 或移除其中一个工具"
+
+  - id: "PA-005"
+    name: "Write and Network Access"
+    severity: high
+    category: permission_abuse
+    description: "同时请求文件写入和网络访问（可能下载恶意内容）"
+    condition: "has_tool_combination:Write,WebFetch"
+    recommendation: "审核是否真正需要同时具备这两种能力"
+
+  - id: "PA-006"
+    name: "Wildcard Tool Request"
+    severity: critical
+    category: permission_abuse
+    description: "检测通配符或全部工具请求"
+    patterns:
+      - "(?i)allowed[-_]?tools\\s*[=:]\\s*['\"]?\\s*\\*"
+      - "(?i)allowed[-_]?tools\\s*[=:]\\s*['\"]?\\s*all\\b"
+      - "(?i)tools\\s*[=:]\\s*['\"]?\\s*(any|every|all)\\b"
+    recommendation: "明确列出需要的工具，不要使用通配符"
+
+  - id: "PA-007"
+    name: "Sensitive MCP Tools"
+    severity: high
+    category: permission_abuse
+    description: "请求访问敏感的 MCP 工具"
+    patterns:
+      - "(?i)mcp__[\\w]+__(execute|shell|bash|cmd|system)"
+      - "(?i)mcp__[\\w]+__(delete|remove|drop)"
+      - "(?i)mcp__[\\w]+__(admin|root|sudo)"
+    recommendation: "审核 MCP 工具的必要性，限制敏感操作"

@@ -1,0 +1,112 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "claude-skill-auditor"
+version = "1.0.0"
+description = "Security auditing tool for Claude Skills - Detect malicious patterns before installing third-party skills"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.9"
+authors = [
+    {name = "Claude Skill Auditor Team"}
+]
+maintainers = [
+    {name = "Claude Skill Auditor Team"}
+]
+keywords = [
+    "claude",
+    "skill",
+    "security",
+    "audit",
+    "llm",
+    "anthropic",
+    "prompt-injection",
+    "code-review"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: MacOS",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Security",
+    "Topic :: Software Development :: Quality Assurance",
+    "Topic :: Software Development :: Testing",
+]
+
+# Core dependencies - minimal for basic static analysis
+dependencies = [
+    "click>=8.1.0",
+    "pyyaml>=6.0",
+    "rich>=13.0.0",
+]
+
+[project.optional-dependencies]
+# AI semantic analysis (optional)
+ai = [
+    "anthropic>=0.18.0",
+    "openai>=1.0.0",
+]
+# Development dependencies
+dev = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.0.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+    "mypy>=1.0.0",
+    "build>=1.0.0",
+    "twine>=4.0.0",
+]
+# All optional dependencies
+all = [
+    "claude-skill-auditor[ai,dev]",
+]
+
+[project.scripts]
+skill-auditor = "skill_auditor.cli:cli"
+
+[project.urls]
+Homepage = "https://github.com/your-org/claude-skill-auditor"
+Documentation = "https://github.com/your-org/claude-skill-auditor#readme"
+Repository = "https://github.com/your-org/claude-skill-auditor"
+Issues = "https://github.com/your-org/claude-skill-auditor/issues"
+Changelog = "https://github.com/your-org/claude-skill-auditor/releases"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+skill_auditor = ["rules/builtin/*.yaml"]
+
+[tool.black]
+line-length = 100
+target-version = ["py39", "py310", "py311", "py312"]
+
+[tool.ruff]
+line-length = 100
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4"]
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_ignores = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]

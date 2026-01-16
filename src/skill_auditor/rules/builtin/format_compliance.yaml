@@ -1,0 +1,41 @@
+# Format Compliance Rules (Based on Official Anthropic Spec)
+rule_set:
+  id: "format-compliance"
+  name: "Format Compliance Detection"
+  version: "1.0.0"
+  description: "基于官方规范检测 Skill 格式合规性问题"
+
+rules:
+  - id: "FC-001"
+    name: "Angle Brackets in Description"
+    severity: high
+    category: prompt_injection
+    description: "Description 字段包含 < 或 >（违反官方规范，可能用于注入攻击）"
+    condition: "description_has_angle_brackets"
+    recommendation: "移除 description 中的 < 和 > 字符"
+
+  - id: "FC-002"
+    name: "Invalid Skill Name Format"
+    severity: medium
+    category: unknown
+    description: "Skill name 不符合官方规范（应为小写字母、数字、连字符组成）"
+    condition: "name_invalid_format"
+    recommendation: "将 name 改为 hyphen-case 格式（如 my-skill-name）"
+
+  - id: "FC-003"
+    name: "Description Too Long"
+    severity: low
+    category: unknown
+    description: "Description 超过 1024 字符限制"
+    patterns:
+      # This is handled by condition, pattern is placeholder
+    condition: "description_length_exceeds:1024"
+    recommendation: "将 description 缩短到 1024 字符以内"
+
+  - id: "FC-004"
+    name: "Skill Body Too Long"
+    severity: low
+    category: unknown
+    description: "Skill body 超过建议的 500 行（可能影响上下文窗口）"
+    condition: "body_length_exceeds:25000"
+    recommendation: "考虑将详细内容移至 references/ 目录"
