@@ -22,7 +22,8 @@
   <a href="#quick-start">Quick Start</a> •
   <a href="#features">Features</a> •
   <a href="#ci-integration">CI Integration</a> •
-  <a href="#custom-rules">Custom Rules</a>
+  <a href="#custom-rules">Custom Rules</a> •
+  <a href="docs/ARCHITECTURE.md">Architecture</a>
 </p>
 
 ---

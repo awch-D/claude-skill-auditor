@@ -22,7 +22,8 @@
   <a href="#快速开始">快速开始</a> •
   <a href="#功能特性">功能特性</a> •
   <a href="#ci-集成">CI 集成</a> •
-  <a href="#自定义规则">自定义规则</a>
+  <a href="#自定义规则">自定义规则</a> •
+  <a href="docs/ARCHITECTURE.md">架构文档</a>
 </p>
 
 ---
