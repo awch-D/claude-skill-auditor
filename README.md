@@ -71,7 +71,23 @@ skill-auditor --version
 
 ## Quick Start
 
-### Audit a Skill file
+### Scan installed Claude Skills
+
+```bash
+# Scan all Claude Skill locations automatically
+skill-auditor scan-all
+
+# Scan personal global skills (~/.claude/skills/)
+skill-auditor scan --global
+
+# Scan project local skills (./.claude/skills/)
+skill-auditor scan --project
+
+# Show Claude Skill paths on your system
+skill-auditor paths
+```
+
+### Audit a single Skill file
 
 ```bash
 skill-auditor audit ./path/to/SKILL.md
@@ -81,11 +97,11 @@ skill-auditor audit ./path/to/SKILL.md
 
 ```
 ╭─────────────────────────────────────────────────────────────╮
-│                   🔍 Skill Audit Report                     │
+│                   Skill Audit Report                        │
 ╰─────────────────────────────────────────────────────────────╯
 
-📄 File: suspicious-skill.md
-⚠️  Risk Score: 85/100
+File: suspicious-skill.md
+Risk Score: 85/100
 
 ┏━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 ┃ Severity ┃ Finding                                         ┃
@@ -95,7 +111,7 @@ skill-auditor audit ./path/to/SKILL.md
 │ HIGH     │ [CI-001] Dangerous rm -rf command               │
 └──────────┴─────────────────────────────────────────────────┘
 
-💡 Recommendation: Do NOT install this skill
+Recommendation: Do NOT install this skill
 ```
 
 ### Scan a directory
@@ -221,6 +237,46 @@ skill-auditor audit ./SKILL.md --rules-dir ./my-rules/
 ## Command Reference
 
 <details>
+<summary><strong>skill-auditor scan-all</strong></summary>
+
+```
+Usage: skill-auditor scan-all [OPTIONS]
+
+  Scan all Claude Skill locations automatically.
+  Discovers and scans skills from:
+    - Personal (Global): ~/.claude/skills/
+    - Project (Local):   ./.claude/skills/
+
+Options:
+  -o, --output PATH               Output directory for reports
+  -f, --format [json|markdown|sarif]
+                                  Output format (default: json)
+  --help                          Show this message
+```
+
+</details>
+
+<details>
+<summary><strong>skill-auditor scan</strong></summary>
+
+```
+Usage: skill-auditor scan [OPTIONS] [DIRECTORY]
+
+  Scan multiple Skill files in a directory.
+
+Options:
+  -r, --recursive                 Recursive scan (default: True)
+  -o, --output PATH               Output directory for reports
+  -f, --format [json|markdown|sarif]
+                                  Output format (default: json)
+  -g, --global                    Scan personal global skills (~/.claude/skills/)
+  -p, --project                   Scan project local skills (./.claude/skills/)
+  --help                          Show this message
+```
+
+</details>
+
+<details>
 <summary><strong>skill-auditor audit</strong></summary>
 
 ```
@@ -243,19 +299,16 @@ Options:
 </details>
 
 <details>
-<summary><strong>skill-auditor scan</strong></summary>
+<summary><strong>skill-auditor paths</strong></summary>
 
 ```
-Usage: skill-auditor scan [OPTIONS] DIRECTORY
+Usage: skill-auditor paths [OPTIONS]
 
-  Scan multiple Skill files in a directory.
+  Show Claude Skill paths for current system.
+  Displays standard locations where Claude Skills are stored.
 
 Options:
-  -r, --recursive         Scan subdirectories
-  -o, --output PATH       Output directory for reports
-  -f, --format [json|markdown|sarif]
-                          Output format (default: json)
-  --help                  Show this message
+  --help  Show this message
 ```
 
 </details>
@@ -269,10 +322,9 @@ Usage: skill-auditor init [OPTIONS]
   Create a configuration file.
 
 Options:
-  --help  Show this message
+  -o, --output PATH  Output file (default: skill-audit-config.yaml)
+  --help             Show this message
 ```
-
-Creates `skill-audit-config.yaml` with default settings.
 
 </details>
 

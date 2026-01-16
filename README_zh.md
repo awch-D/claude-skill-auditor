@@ -71,6 +71,22 @@ skill-auditor --version
 
 ## 快速开始
 
+### 扫描已安装的 Claude Skills
+
+```bash
+# 自动扫描所有 Claude Skill 位置
+skill-auditor scan-all
+
+# 扫描个人全局技能 (~/.claude/skills/)
+skill-auditor scan --global
+
+# 扫描项目本地技能 (./.claude/skills/)
+skill-auditor scan --project
+
+# 显示当前系统的 Claude Skill 路径
+skill-auditor paths
+```
+
 ### 审计单个 Skill 文件
 
 ```bash
@@ -81,11 +97,11 @@ skill-auditor audit ./path/to/SKILL.md
 
 ```
 ╭─────────────────────────────────────────────────────────────╮
-│                   🔍 Skill 安全审计报告                      │
+│                   Skill 安全审计报告                         │
 ╰─────────────────────────────────────────────────────────────╯
 
-📄 文件: suspicious-skill.md
-⚠️  风险评分: 85/100
+文件: suspicious-skill.md
+风险评分: 85/100
 
 ┏━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 ┃ 严重级别  ┃ 发现问题                                         ┃
@@ -95,7 +111,7 @@ skill-auditor audit ./path/to/SKILL.md
 │ 高危     │ [CI-001] 危险的 rm -rf 命令                       │
 └──────────┴─────────────────────────────────────────────────┘
 
-💡 建议: 请勿安装此 Skill
+建议: 请勿安装此 Skill
 ```
 
 ### 扫描目录
@@ -221,6 +237,46 @@ skill-auditor audit ./SKILL.md --rules-dir ./my-rules/
 ## 命令参考
 
 <details>
+<summary><strong>skill-auditor scan-all</strong></summary>
+
+```
+用法: skill-auditor scan-all [选项]
+
+  自动扫描所有 Claude Skill 位置。
+  发现并扫描以下位置的技能:
+    - 个人全局: ~/.claude/skills/
+    - 项目本地: ./.claude/skills/
+
+选项:
+  -o, --output PATH               报告输出目录
+  -f, --format [json|markdown|sarif]
+                                  输出格式（默认: json）
+  --help                          显示帮助信息
+```
+
+</details>
+
+<details>
+<summary><strong>skill-auditor scan</strong></summary>
+
+```
+用法: skill-auditor scan [选项] [目录]
+
+  扫描目录中的多个 Skill 文件。
+
+选项:
+  -r, --recursive                 递归扫描（默认: 是）
+  -o, --output PATH               报告输出目录
+  -f, --format [json|markdown|sarif]
+                                  输出格式（默认: json）
+  -g, --global                    扫描个人全局技能 (~/.claude/skills/)
+  -p, --project                   扫描项目本地技能 (./.claude/skills/)
+  --help                          显示帮助信息
+```
+
+</details>
+
+<details>
 <summary><strong>skill-auditor audit</strong></summary>
 
 ```
@@ -243,19 +299,16 @@ skill-auditor audit ./SKILL.md --rules-dir ./my-rules/
 </details>
 
 <details>
-<summary><strong>skill-auditor scan</strong></summary>
+<summary><strong>skill-auditor paths</strong></summary>
 
 ```
-用法: skill-auditor scan [选项] DIRECTORY
+用法: skill-auditor paths [选项]
 
-  扫描目录中的多个 Skill 文件。
+  显示当前系统的 Claude Skill 路径。
+  显示 Claude Skills 存储的标准位置。
 
 选项:
-  -r, --recursive         递归扫描子目录
-  -o, --output PATH       报告输出目录
-  -f, --format [json|markdown|sarif]
-                          输出格式（默认: json）
-  --help                  显示帮助信息
+  --help  显示帮助信息
 ```
 
 </details>
@@ -269,10 +322,9 @@ skill-auditor audit ./SKILL.md --rules-dir ./my-rules/
   创建配置文件。
 
 选项:
-  --help  显示帮助信息
+  -o, --output PATH  输出文件（默认: skill-audit-config.yaml）
+  --help             显示帮助信息
 ```
-
-创建 `skill-audit-config.yaml` 默认配置文件。
 
 </details>
 
