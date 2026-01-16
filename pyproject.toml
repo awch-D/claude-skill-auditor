@@ -7,7 +7,7 @@ name = "claude-skill-auditor"
 version = "1.0.0"
 description = "Security auditing tool for Claude Skills - Detect malicious patterns before installing third-party skills"
 readme = "README.md"
-license = {text = "MIT"}
+license = "MIT"
 requires-python = ">=3.9"
 authors = [
     {name = "Claude Skill Auditor Team"}
@@ -30,7 +30,6 @@ classifiers = [
     "Environment :: Console",
     "Intended Audience :: Developers",
     "Intended Audience :: Information Technology",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Operating System :: Microsoft :: Windows",
     "Operating System :: MacOS",
