@@ -1,5 +1,9 @@
 <p align="center">
-  <img src="https://img.shields.io/badge/Claude-Skill%20Auditor-blueviolet?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0id2hpdGUiIGQ9Ik0xMiAyQzYuNDggMiAyIDYuNDggMiAxMnM0LjQ4IDEwIDEwIDEwIDEwLTQuNDggMTAtMTBTMTcuNTIgMiAxMiAyem0tMSAxN3YtMkg1di0yaDZ2LTJINXYtMmg2VjdoMnYxMGgtMnoiLz48L3N2Zz4=" alt="Claude Skill Auditor">
+  <a href="README.md">English</a> | <a href="README_zh.md">中文</a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Claude-Skill%20Auditor-blueviolet?style=for-the-badge" alt="Claude Skill Auditor">
   <br>
   <strong>Security auditing tool for Claude Skills</strong>
   <br>
