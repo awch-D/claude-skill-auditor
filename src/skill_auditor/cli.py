@@ -1,8 +1,19 @@
 """CLI command interface"""
 
 import sys
+import os
 from pathlib import Path
 from typing import Optional
+
+# Fix Windows Unicode encoding issues
+if sys.platform == "win32":
+    # Set UTF-8 mode for Windows
+    if hasattr(sys.stdout, 'reconfigure'):
+        sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+    if hasattr(sys.stderr, 'reconfigure'):
+        sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+    # Enable UTF-8 mode via environment
+    os.environ.setdefault('PYTHONIOENCODING', 'utf-8')
 
 import click
 from rich.console import Console
@@ -14,7 +25,8 @@ from .core.audit_context import AuditResult, Severity
 from .rules.engine import RuleEngine
 from .reporters import get_reporter
 
-console = Console()
+# Configure Rich console with safe output for all platforms
+console = Console(force_terminal=False, soft_wrap=True)
 
 
 def get_builtin_rules_dir() -> Path:
