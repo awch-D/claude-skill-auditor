@@ -1,13 +1,13 @@
 <p align="center">
-  <a href="README.md">English</a> | <a href="README_zh.md">中文</a>
+  <a href="README_en.md">English</a> | <a href="README.md">中文</a>
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Claude-Skill%20Auditor-blueviolet?style=for-the-badge" alt="Claude Skill Auditor">
   <br>
-  <strong>Security auditing tool for Claude Skills</strong>
+  <strong>Claude Skill 安全审计工具</strong>
   <br>
-  <em>Detect malicious patterns before installing third-party skills</em>
+  <em>在安装第三方 Skill 之前检测恶意模式</em>
 </p>
 
 <p align="center">
@@ -18,31 +18,31 @@
 </p>
 
 <p align="center">
-  <a href="#installation">Installation</a> •
-  <a href="#quick-start">Quick Start</a> •
-  <a href="#features">Features</a> •
-  <a href="#ci-integration">CI Integration</a> •
-  <a href="#custom-rules">Custom Rules</a> •
-  <a href="docs/ARCHITECTURE.md">Architecture</a>
+  <a href="#安装">安装</a> •
+  <a href="#快速开始">快速开始</a> •
+  <a href="#功能特性">功能特性</a> •
+  <a href="#ci-集成">CI 集成</a> •
+  <a href="#自定义规则">自定义规则</a> •
+  <a href="docs/ARCHITECTURE.md">架构文档</a>
 </p>
 
 ---
 
-## System Architecture
+## 系统架构
 
-> 📐 **[View Full Architecture Documentation →](docs/ARCHITECTURE.md)**
+> 📐 **[查看完整架构文档 →](docs/ARCHITECTURE.md)**
 
 ```mermaid
 %%{init: {'theme': 'dark', 'themeVariables': { 'primaryColor': '#000000', 'primaryTextColor': '#ffffff', 'primaryBorderColor': '#ffffff', 'lineColor': '#ffffff', 'secondaryColor': '#1a1a1a', 'background': '#000000', 'nodeBorder': '#ffffff', 'clusterBkg': '#1a1a1a', 'clusterBorder': '#ffffff'}}}%%
 flowchart LR
-    subgraph INPUT["📥 Input"]
-        A["Skill File"]
+    subgraph INPUT["📥 输入"]
+        A["Skill 文件"]
     end
-    subgraph PROCESS["⚙️ Process"]
-        B["Parser"] --> C["Rule Engine"] --> D["Analyzer"]
+    subgraph PROCESS["⚙️ 处理"]
+        B["解析器"] --> C["规则引擎"] --> D["分析器"]
     end
-    subgraph OUTPUT["📤 Output"]
-        E["Report"]
+    subgraph OUTPUT["📤 输出"]
+        E["报告"]
     end
     A --> B
     D --> E
@@ -50,33 +50,33 @@ flowchart LR
 
 ---
 
-## Why Use This?
+## 为什么使用？
 
-Third-party Claude Skills can contain **hidden malicious instructions** that:
-- 🎭 Override system prompts via prompt injection
-- 📤 Exfiltrate sensitive data to external servers
-- 💻 Execute dangerous shell commands
-- 🔑 Access credentials and environment variables
+第三方 Claude Skill 可能包含**隐藏的恶意指令**：
+- 🎭 通过 prompt 注入覆盖系统提示
+- 📤 将敏感数据泄露到外部服务器
+- 💻 执行危险的 shell 命令
+- 🔑 访问凭证和环境变量
 
-**claude-skill-auditor** scans Skill files *before* you install them, detecting 21+ attack patterns across 7 risk categories.
+**claude-skill-auditor** 在安装 Skill 之前扫描文件，检测 7 大风险类别中的 21+ 种攻击模式。
 
 ---
 
-## Installation
+## 安装
 
 ```bash
 pip install claude-skill-auditor
 ```
 
 <details>
-<summary><strong>Alternative installation methods</strong></summary>
+<summary><strong>其他安装方式</strong></summary>
 
-### Using pipx (Isolated environment)
+### 使用 pipx（隔离环境）
 ```bash
 pipx install claude-skill-auditor
 ```
 
-### From source
+### 从源码安装
 ```bash
 git clone https://github.com/awch-D/claude-skill-auditor.git
 cd claude-skill-auditor
@@ -85,105 +85,105 @@ pip install -e .
 
 </details>
 
-Verify installation:
+验证安装：
 ```bash
 skill-auditor --version
 ```
 
 ---
 
-## Quick Start
+## 快速开始
 
-### Scan installed Claude Skills
+### 扫描已安装的 Claude Skills
 
 ```bash
-# Scan all Claude Skill locations automatically
+# 自动扫描所有 Claude Skill 位置
 skill-auditor scan-all
 
-# Scan personal global skills (~/.claude/skills/)
+# 扫描个人全局技能 (~/.claude/skills/)
 skill-auditor scan --global
 
-# Scan project local skills (./.claude/skills/)
+# 扫描项目本地技能 (./.claude/skills/)
 skill-auditor scan --project
 
-# Show Claude Skill paths on your system
+# 显示当前系统的 Claude Skill 路径
 skill-auditor paths
 ```
 
-### Audit a single Skill file
+### 审计单个 Skill 文件
 
 ```bash
 skill-auditor audit ./path/to/SKILL.md
 ```
 
-**Example output:**
+**输出示例：**
 
 ```
 ╭─────────────────────────────────────────────────────────────╮
-│                   Skill Audit Report                        │
+│                   Skill 安全审计报告                         │
 ╰─────────────────────────────────────────────────────────────╯
 
-File: suspicious-skill.md
-Risk Score: 85/100
+文件: suspicious-skill.md
+风险评分: 85/100
 
 ┏━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃ Severity ┃ Finding                                         ┃
+┃ 严重级别  ┃ 发现问题                                         ┃
 ┡━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
-│ CRITICAL │ [PI-001] Ignore Previous Instructions detected  │
-│ CRITICAL │ [DE-001] External webhook URL found             │
-│ HIGH     │ [CI-001] Dangerous rm -rf command               │
+│ 严重     │ [PI-001] 检测到忽略之前指令的模式                  │
+│ 严重     │ [DE-001] 发现外部 webhook URL                     │
+│ 高危     │ [CI-001] 危险的 rm -rf 命令                       │
 └──────────┴─────────────────────────────────────────────────┘
 
-Recommendation: Do NOT install this skill
+建议: 请勿安装此 Skill
 ```
 
-### Scan a directory
+### 扫描目录
 
 ```bash
-# Scan all skills in a folder
+# 扫描文件夹中的所有 skill
 skill-auditor scan ./skills/
 
-# Recursive scan with reports
+# 递归扫描并生成报告
 skill-auditor scan ./skills/ -r -o ./reports/
 ```
 
-### Output formats
+### 输出格式
 
 ```bash
-# JSON (for automation)
+# JSON（用于自动化）
 skill-auditor audit ./SKILL.md -f json
 
-# SARIF (for GitHub Code Scanning)
+# SARIF（用于 GitHub Code Scanning）
 skill-auditor audit ./SKILL.md -f sarif -o results.sarif
 
-# Markdown (human-readable)
+# Markdown（人工阅读）
 skill-auditor audit ./SKILL.md -f markdown
 ```
 
 ---
 
-## Features
+## 功能特性
 
-| Category | Detections | Severity |
-|----------|------------|----------|
-| **Prompt Injection** | Ignore instructions, role manipulation, hidden commands | CRITICAL |
-| **Data Exfiltration** | Webhooks, external APIs, bulk data collection | CRITICAL |
-| **Command Injection** | rm -rf, curl pipes, package manager abuse | CRITICAL |
-| **Credential Exposure** | ENV vars, API keys, hardcoded secrets | CRITICAL |
-| **Permission Abuse** | Unrestricted tools, dangerous combinations | HIGH |
-| **Path Traversal** | ~/.ssh, /etc/passwd, sensitive directories | HIGH |
-| **Social Engineering** | Urgency tactics, authority impersonation | MEDIUM |
+| 类别 | 检测内容 | 严重级别 |
+|------|----------|----------|
+| **Prompt 注入** | 忽略指令、角色操纵、隐藏命令 | 严重 |
+| **数据泄露** | Webhook、外部 API、批量数据收集 | 严重 |
+| **命令注入** | rm -rf、curl 管道、包管理器滥用 | 严重 |
+| **凭证暴露** | 环境变量、API 密钥、硬编码密钥 | 严重 |
+| **权限滥用** | 无限制工具、危险工具组合 | 高危 |
+| **路径遍历** | ~/.ssh、/etc/passwd、敏感目录 | 高危 |
+| **社会工程** | 紧迫感操纵、权威冒充 | 中危 |
 
-**21+ built-in rules** based on real-world attack patterns.
+**21+ 条内置规则**，基于真实攻击模式。
 
 ---
 
-## CI Integration
+## CI 集成
 
 ### GitHub Actions
 
 ```yaml
-name: Skill Security Audit
+name: Skill 安全审计
 
 on: [push, pull_request]
 
@@ -193,63 +193,63 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: 设置 Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Install auditor
+      - name: 安装审计工具
         run: pip install claude-skill-auditor
 
-      - name: Audit skills
+      - name: 审计 skills
         run: skill-auditor scan ./skills/ -r --fail-on high
 
-      - name: Upload SARIF
+      - name: 上传 SARIF
         if: always()
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: results.sarif
 ```
 
-### Fail thresholds
+### 失败阈值
 
 ```bash
-# Block on HIGH or above (default)
+# 高危及以上时阻断（默认）
 skill-auditor audit ./SKILL.md --fail-on high
 
-# Only block on CRITICAL
+# 仅严重级别时阻断
 skill-auditor audit ./SKILL.md --fail-on critical
 
-# Report only, never fail
+# 仅报告，不阻断
 skill-auditor audit ./SKILL.md --fail-on none
 ```
 
 ---
 
-## Custom Rules
+## 自定义规则
 
-Create your own rules in YAML:
+使用 YAML 创建自定义规则：
 
 ```yaml
 # my-rules/internal.yaml
 rule_set:
   id: "internal-rules"
-  name: "Internal Security Rules"
+  name: "内部安全规则"
   version: "1.0.0"
 
 rules:
   - id: "INT-001"
-    name: "Internal API Reference"
+    name: "内部 API 引用"
     severity: high
     category: data_exfiltration
-    description: "Skill references internal API endpoints"
+    description: "Skill 引用了内部 API 端点"
     patterns:
       - "(?i)https?://internal\\."
       - "(?i)https?://.*\\.internal\\."
-    recommendation: "Remove internal API references before publishing"
+    recommendation: "发布前移除内部 API 引用"
 ```
 
-Use custom rules:
+使用自定义规则：
 
 ```bash
 skill-auditor audit ./SKILL.md --rules-dir ./my-rules/
@@ -257,24 +257,24 @@ skill-auditor audit ./SKILL.md --rules-dir ./my-rules/
 
 ---
 
-## Command Reference
+## 命令参考
 
 <details>
 <summary><strong>skill-auditor scan-all</strong></summary>
 
 ```
-Usage: skill-auditor scan-all [OPTIONS]
+用法: skill-auditor scan-all [选项]
 
-  Scan all Claude Skill locations automatically.
-  Discovers and scans skills from:
-    - Personal (Global): ~/.claude/skills/
-    - Project (Local):   ./.claude/skills/
+  自动扫描所有 Claude Skill 位置。
+  发现并扫描以下位置的技能:
+    - 个人全局: ~/.claude/skills/
+    - 项目本地: ./.claude/skills/
 
-Options:
-  -o, --output PATH               Output directory for reports
+选项:
+  -o, --output PATH               报告输出目录
   -f, --format [json|markdown|sarif]
-                                  Output format (default: json)
-  --help                          Show this message
+                                  输出格式（默认: json）
+  --help                          显示帮助信息
 ```
 
 </details>
@@ -283,18 +283,18 @@ Options:
 <summary><strong>skill-auditor scan</strong></summary>
 
 ```
-Usage: skill-auditor scan [OPTIONS] [DIRECTORY]
+用法: skill-auditor scan [选项] [目录]
 
-  Scan multiple Skill files in a directory.
+  扫描目录中的多个 Skill 文件。
 
-Options:
-  -r, --recursive                 Recursive scan (default: True)
-  -o, --output PATH               Output directory for reports
+选项:
+  -r, --recursive                 递归扫描（默认: 是）
+  -o, --output PATH               报告输出目录
   -f, --format [json|markdown|sarif]
-                                  Output format (default: json)
-  -g, --global                    Scan personal global skills (~/.claude/skills/)
-  -p, --project                   Scan project local skills (./.claude/skills/)
-  --help                          Show this message
+                                  输出格式（默认: json）
+  -g, --global                    扫描个人全局技能 (~/.claude/skills/)
+  -p, --project                   扫描项目本地技能 (./.claude/skills/)
+  --help                          显示帮助信息
 ```
 
 </details>
@@ -303,20 +303,20 @@ Options:
 <summary><strong>skill-auditor audit</strong></summary>
 
 ```
-Usage: skill-auditor audit [OPTIONS] SKILL_PATH
+用法: skill-auditor audit [选项] SKILL_PATH
 
-  Audit a single Skill file for security risks.
+  审计单个 Skill 文件的安全风险。
 
-Options:
-  -f, --format [json|markdown|sarif]  Output format (default: markdown)
-  -o, --output PATH                   Save report to file
+选项:
+  -f, --format [json|markdown|sarif]  输出格式（默认: markdown）
+  -o, --output PATH                   保存报告到文件
   -s, --severity [low|medium|high|critical]
-                                      Minimum severity to report
+                                      报告的最低严重级别
   --fail-on [none|medium|high|critical]
-                                      Exit with code 1 if findings >= level
-  --rules-dir PATH                    Directory with custom rules
-  -v, --verbose                       Verbose output
-  --help                              Show this message
+                                      达到级别时返回退出码 1
+  --rules-dir PATH                    自定义规则目录
+  -v, --verbose                       详细输出
+  --help                              显示帮助信息
 ```
 
 </details>
@@ -325,13 +325,13 @@ Options:
 <summary><strong>skill-auditor paths</strong></summary>
 
 ```
-Usage: skill-auditor paths [OPTIONS]
+用法: skill-auditor paths [选项]
 
-  Show Claude Skill paths for current system.
-  Displays standard locations where Claude Skills are stored.
+  显示当前系统的 Claude Skill 路径。
+  显示 Claude Skills 存储的标准位置。
 
-Options:
-  --help  Show this message
+选项:
+  --help  显示帮助信息
 ```
 
 </details>
@@ -340,37 +340,37 @@ Options:
 <summary><strong>skill-auditor init</strong></summary>
 
 ```
-Usage: skill-auditor init [OPTIONS]
+用法: skill-auditor init [选项]
 
-  Create a configuration file.
+  创建配置文件。
 
-Options:
-  -o, --output PATH  Output file (default: skill-audit-config.yaml)
-  --help             Show this message
+选项:
+  -o, --output PATH  输出文件（默认: skill-audit-config.yaml）
+  --help             显示帮助信息
 ```
 
 </details>
 
 ---
 
-## Exit Codes
+## 退出码
 
-| Code | Meaning |
-|------|---------|
-| `0` | Audit passed (no findings at or above threshold) |
-| `1` | Audit failed (findings at or above `--fail-on` level) |
+| 代码 | 含义 |
+|------|------|
+| `0` | 审计通过（无达到阈值的问题） |
+| `1` | 审计失败（发现达到 `--fail-on` 级别的问题） |
 
 ---
 
-## Requirements
+## 环境要求
 
 - Python 3.9+
-- Works on **Windows**, **macOS**, and **Linux**
-- Only 3 dependencies: `click`, `pyyaml`, `rich`
+- 支持 **Windows**、**macOS** 和 **Linux**
+- 仅 3 个依赖: `click`, `pyyaml`, `rich`
 
 ---
 
-## Uninstall
+## 卸载
 
 ```bash
 pip uninstall claude-skill-auditor
@@ -378,18 +378,18 @@ pip uninstall claude-skill-auditor
 
 ---
 
-## Contributing
+## 贡献
 
-Contributions welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+欢迎贡献！请参阅 [CONTRIBUTING.md](CONTRIBUTING.md) 了解指南。
 
 ---
 
-## License
+## 许可证
 
-[MIT License](LICENSE) - Claude Skill Auditor Team
+[MIT 许可证](LICENSE) - Claude Skill Auditor Team
 
 ---
 
 <p align="center">
-  <sub>Built with security in mind for the Claude ecosystem</sub>
+  <sub>为 Claude 生态系统安全而构建</sub>
 </p>

@@ -11,14 +11,14 @@
 ```mermaid
 %%{init: {'theme': 'dark', 'themeVariables': { 'primaryColor': '#000000', 'primaryTextColor': '#ffffff', 'primaryBorderColor': '#ffffff', 'lineColor': '#ffffff', 'secondaryColor': '#1a1a1a', 'tertiaryColor': '#2a2a2a', 'background': '#000000', 'mainBkg': '#000000', 'nodeBorder': '#ffffff', 'clusterBkg': '#1a1a1a', 'clusterBorder': '#ffffff', 'titleColor': '#ffffff', 'edgeLabelBackground': '#000000'}}}%%
 flowchart TB
-    subgraph INPUT["📥 输入"]
+    subgraph INPUT["输入"]
         direction TB
         FILE["Skill 文件<br/>(.md)"]
         DIR["目录<br/>扫描"]
         AUTO["自动<br/>发现"]
     end
 
-    subgraph CLI["🖥️ CLI 层"]
+    subgraph CLI["CLI 层"]
         direction TB
         CMD_AUDIT["audit<br/>单文件审计"]
         CMD_SCAN["scan<br/>目录扫描"]
@@ -26,14 +26,14 @@ flowchart TB
         CMD_PATHS["paths<br/>路径显示"]
     end
 
-    subgraph DISCOVERY["🔍 路径发现"]
+    subgraph DISCOVERY["路径发现"]
         direction TB
         PATHS_FUNC["get_claude_skill_paths()<br/>获取标准路径"]
         FIND_FUNC["find_skill_files()<br/>查找文件"]
         DISCOVER_FUNC["discover_all_skills()<br/>发现所有技能"]
     end
 
-    subgraph CORE["⚙️ 核心引擎"]
+    subgraph CORE["核心引擎"]
         direction TB
         PARSER["SkillParser<br/>YAML + Markdown 解析"]
         SKILL_MODEL["Skill Model<br/>数据结构"]
@@ -41,7 +41,7 @@ flowchart TB
         AUDIT_RESULT["AuditResult<br/>风险评分"]
     end
 
-    subgraph RULES["📋 安全规则"]
+    subgraph RULES["安全规则"]
         direction TB
         R1["prompt_injection.yaml<br/>Prompt 注入"]
         R2["permissions.yaml<br/>权限滥用"]
@@ -49,7 +49,7 @@ flowchart TB
         R4["format_compliance.yaml<br/>格式合规"]
     end
 
-    subgraph OUTPUT["📤 输出"]
+    subgraph OUTPUT["输出"]
         direction TB
         JSON_OUT["JSON<br/>自动化处理"]
         MD_OUT["Markdown<br/>人工阅读"]
@@ -150,7 +150,7 @@ sequenceDiagram
 ```mermaid
 %%{init: {'theme': 'dark', 'themeVariables': { 'primaryColor': '#000000', 'primaryTextColor': '#ffffff', 'primaryBorderColor': '#ffffff', 'lineColor': '#ffffff', 'secondaryColor': '#1a1a1a', 'tertiaryColor': '#2a2a2a', 'background': '#000000', 'nodeBorder': '#ffffff', 'clusterBkg': '#1a1a1a', 'clusterBorder': '#ffffff', 'titleColor': '#ffffff'}}}%%
 flowchart LR
-    subgraph pkg["📦 skill_auditor"]
+    subgraph pkg["skill_auditor"]
         direction TB
 
         subgraph cli_mod["cli.py - 命令行接口"]
